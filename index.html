@@ -12,6 +12,8 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
       width: 400px;
       margin: auto;
+      max-height: 500px;
+      overflow-y: auto;
     }
     .message { margin: 10px 0; }
     .bot { color: green; }
@@ -52,9 +54,12 @@
 </div>
 
 <script>
+let currentStep = "select";  // Track conversation step
+let tempData = {}; // Store user inputs (name, mobile, location)
+
 function sendMessage() {
   const inputBox = document.getElementById('userInput');
-  const input = inputBox.value.trim().toLowerCase();
+  const input = inputBox.value.trim();
   const chatbox = document.getElementById('chatbox');
 
   if (!input) return;
@@ -62,34 +67,34 @@ function sendMessage() {
   // Display user message
   const userMessage = document.createElement('div');
   userMessage.className = 'message user';
-  userMessage.innerText = inputBox.value;
+  userMessage.innerText = input;
   chatbox.appendChild(userMessage);
 
-  // Prepare bot response
   const botMessage = document.createElement('div');
   botMessage.className = 'message bot';
 
-  if (input === '1' || input.includes('line')) {
-    botMessage.innerText = "🔴 We are sorry about the line break. Our technical team is working on it.";
-  } else if (input === '2' || input.includes('recharge') || input.includes('renewal')) {
-    botMessage.innerText = "🔴 Redirecting you to the Recharge Portal...";
-    chatbox.appendChild(botMessage);
-    setTimeout(() => {
-      window.location.href = "https://customer.ubiinternet.com/Customer/Default.aspx";
-    }, 2000);
-    inputBox.value = "";
-    return;
-  } else if (input === '3' || input.includes('speed')) {
-    botMessage.innerText = "🔴 Sorry for the speed issue. Please restart your router. If it continues, contact support.";
-  } else {
-    botMessage.innerText = "❌ Sorry, I didn't understand. Please type:\n1 - Line break\n2 - Recharge Renewal\n3 - Speed issue.";
+  if (currentStep === "select") {
+    if (input === '1' || input.toLowerCase().includes('line')) {
+      currentStep = "linebreak_name";
+      botMessage.innerText = "🔴 Sorry about the line break.\nPlease provide your Name:";
+    } else if (input === '2' || input.toLowerCase().includes('recharge') || input.toLowerCase().includes('renewal')) {
+      botMessage.innerText = "🔴 Redirecting you to the Recharge Portal...";
+      chatbox.appendChild(botMessage);
+      setTimeout(() => {
+        window.location.href = "https://customer.ubiinternet.com/Customer/Default.aspx";
+      }, 2000);
+      inputBox.value = "";
+      return;
+    } else if (input === '3' || input.toLowerCase().includes('speed')) {
+      currentStep = "speedissue_name";
+      botMessage.innerText = "🔴 Sorry for the speed issue.\nPlease provide your Name:";
+    } else {
+      botMessage.innerText = "❌ Sorry, I didn't understand.\nPlease type:\n1 - Line break\n2 - Recharge Renewal\n3 - Speed issue.";
+    }
   }
-
-  chatbox.appendChild(botMessage);
-  inputBox.value = "";
-  chatbox.scrollTop = chatbox.scrollHeight;
-}
-</script>
-
-</body>
-</html>
+  else if (currentStep === "linebreak_name" || currentStep === "speedissue_name") {
+    tempData.name = input;
+    currentStep = currentStep.replace("name", "mobile");
+    botMessage.innerText = "📱 Please provide your Mobile Number:";
+  }
+  else if (currentStep.ends
