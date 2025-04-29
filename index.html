@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>UBI ISP Support Chatbot</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
     #chatbox {
       background: #fff;
       padding: 20px;
@@ -16,58 +16,78 @@
     .message { margin: 10px 0; }
     .bot { color: green; }
     .user { color: blue; text-align: right; }
-    .btn-option {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      background-color: #ff4d4d;
-      color: white;
-      font-size: 16px;
+    input[type="text"] {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
       border: none;
+      background: #007BFF;
+      color: white;
       border-radius: 5px;
       cursor: pointer;
     }
-    .btn-option:hover {
-      background-color: #cc0000;
-    }
+    button:hover { background: #0056b3; }
+    .center { text-align: center; margin-top: 20px; }
   </style>
 </head>
 <body>
 
 <div id="chatbox">
   <div class="message bot">👋 Welcome to <strong>UBI ISP</strong> Support!</div>
-  <div class="message bot">How can we assist you today?</div>
+  <div class="message bot">
+    How can we assist you today? <br><br>
+    🔴 1. Line break<br>
+    🔴 2. Recharge Renewal<br>
+    🔴 3. Speed issue
+  </div>
+</div>
 
-  <button class="btn-option" onclick="handleChoice('line')">🔴 Line break</button>
-  <button class="btn-option" onclick="handleChoice('recharge')">🔴 Recharge issues</button>
-  <button class="btn-option" onclick="handleChoice('speed')">🔴 Speed issues</button>
+<div class="center">
+  <input type="text" id="userInput" placeholder="Type 1, 2, or 3...">
+  <button onclick="sendMessage()">Send</button>
 </div>
 
 <script>
-function appendMessage(content, type) {
+function sendMessage() {
+  const inputBox = document.getElementById('userInput');
+  const input = inputBox.value.trim().toLowerCase();
   const chatbox = document.getElementById('chatbox');
-  const msg = document.createElement('div');
-  msg.className = `message ${type}`;
-  msg.innerText = content;
-  chatbox.appendChild(msg);
-  chatbox.scrollTop = chatbox.scrollHeight;
-}
 
-function handleChoice(option) {
-  if (option === 'line') {
-    appendMessage("You selected: Line break", 'user');
-    appendMessage("🔴 We are sorry about the line break. Our technical team is working on it.", 'bot');
-  } else if (option === 'recharge') {
-    appendMessage("You selected: Recharge issues", 'user');
-    appendMessage("🔴 Redirecting you to the Recharge Portal... ⏳", 'bot');
+  if (!input) return;
+
+  // Display user message
+  const userMessage = document.createElement('div');
+  userMessage.className = 'message user';
+  userMessage.innerText = inputBox.value;
+  chatbox.appendChild(userMessage);
+
+  // Prepare bot response
+  const botMessage = document.createElement('div');
+  botMessage.className = 'message bot';
+
+  if (input === '1' || input.includes('line')) {
+    botMessage.innerText = "🔴 We are sorry about the line break. Our technical team is working on it.";
+  } else if (input === '2' || input.includes('recharge') || input.includes('renewal')) {
+    botMessage.innerText = "🔴 Redirecting you to the Recharge Portal...";
+    chatbox.appendChild(botMessage);
     setTimeout(() => {
       window.location.href = "https://customer.ubiinternet.com/Customer/Default.aspx";
     }, 2000);
-  } else if (option === 'speed') {
-    appendMessage("You selected: Speed issues", 'user');
-    appendMessage("🔴 Sorry for the speed issue. Please restart your router. If it continues, contact support.", 'bot');
+    inputBox.value = "";
+    return;
+  } else if (input === '3' || input.includes('speed')) {
+    botMessage.innerText = "🔴 Sorry for the speed issue. Please restart your router. If it continues, contact support.";
+  } else {
+    botMessage.innerText = "❌ Sorry, I didn't understand. Please type:\n1 - Line break\n2 - Recharge Renewal\n3 - Speed issue.";
   }
+
+  chatbox.appendChild(botMessage);
+  inputBox.value = "";
+  chatbox.scrollTop = chatbox.scrollHeight;
 }
 </script>
 
