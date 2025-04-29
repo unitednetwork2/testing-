@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CAF Form</title>
+</head>
+<body>
+  <h2>Customer Application Form</h2>
+  <form id="cafForm">
+    <label>Name: <input type="text" name="name" required></label><br><br>
+    <label>Mobile: <input type="text" name="mobile" required></label><br><br>
+    <label>Location: <input type="text" name="location" required></label><br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="downloadLink"></div>
+
+  <script>
+    const form = document.getElementById('cafForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      const response = await fetch('YOUR_GOOGLE_SCRIPT_WEB_APP_URL', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        document.getElementById('downloadLink').innerHTML =
+          `<a href="${result.pdfUrl}" target="_blank">Download Your PDF</a>`;
+      } else {
+        alert("Error: " + result.message);
+      }
+    });
+  </script>
+</body>
+</html>
