@@ -50,7 +50,12 @@ function sendMessage() {
   if (input.toLowerCase().includes("line break")) {
     botMessage.innerHTML = "🔴 We are sorry about the line break issue. Our technical team is already working to fix it. Thank you for your patience!";
   } else if (input.toLowerCase().includes("recharge")) {
-    botMessage.innerHTML = "🔴 Facing recharge problems? Please visit our payment portal or contact our billing support team.";
+    botMessage.innerHTML = "🔴 Redirecting you to our Recharge Portal... ⏳";
+    chatbox.appendChild(botMessage);
+    setTimeout(function() {
+      window.location.href = "https://customer.ubiinternet.com/Customer/Default.aspx";
+    }, 2000); // 2 seconds delay before redirect
+    return; // Exit function after redirecting
   } else if (input.toLowerCase().includes("speed")) {
     botMessage.innerHTML = "🔴 Apologies for the speed trouble. Try restarting your modem. If the problem continues, our support team is ready to help.";
   } else {
