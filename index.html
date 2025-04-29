@@ -15,7 +15,7 @@
       max-height: 500px;
       overflow-y: auto;
     }
-    .message { margin: 10px 0; }
+    .message { margin: 10px 0; white-space: pre-line; }
     .bot { color: green; }
     .user { color: blue; text-align: right; }
     input[type="text"] {
@@ -27,12 +27,12 @@
     button {
       padding: 10px 20px;
       border: none;
-      background: #007BFF;
+      background: #6A0DAD;
       color: white;
       border-radius: 5px;
       cursor: pointer;
     }
-    button:hover { background: #0056b3; }
+    button:hover { background: #4b0082; }
     .center { text-align: center; margin-top: 20px; }
   </style>
 </head>
@@ -41,10 +41,11 @@
 <div id="chatbox">
   <div class="message bot">👋 Welcome to <strong>UBI ISP</strong> Support!</div>
   <div class="message bot">
-    How can we assist you today? <br><br>
-    🔴 1. Line break<br>
-    🔴 2. Recharge Renewal<br>
-    🔴 3. Speed issue
+How can we assist you today? 
+
+🔴 1. Line break  
+🔴 2. Recharge Renewal  
+🔴 3. Speed issue
   </div>
 </div>
 
@@ -54,47 +55,76 @@
 </div>
 
 <script>
-let currentStep = "select";  // Track conversation step
-let tempData = {}; // Store user inputs (name, mobile, location)
+let step = "start";
+let userData = {};
 
 function sendMessage() {
   const inputBox = document.getElementById('userInput');
   const input = inputBox.value.trim();
   const chatbox = document.getElementById('chatbox');
-
   if (!input) return;
 
-  // Display user message
-  const userMessage = document.createElement('div');
-  userMessage.className = 'message user';
-  userMessage.innerText = input;
-  chatbox.appendChild(userMessage);
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'message user';
+  userMsg.innerText = input;
+  chatbox.appendChild(userMsg);
 
-  const botMessage = document.createElement('div');
-  botMessage.className = 'message bot';
+  // Bot message
+  const botMsg = document.createElement('div');
+  botMsg.className = 'message bot';
 
-  if (currentStep === "select") {
-    if (input === '1' || input.toLowerCase().includes('line')) {
-      currentStep = "linebreak_name";
-      botMessage.innerText = "🔴 Sorry about the line break.\nPlease provide your Name:";
-    } else if (input === '2' || input.toLowerCase().includes('recharge') || input.toLowerCase().includes('renewal')) {
-      botMessage.innerText = "🔴 Redirecting you to the Recharge Portal...";
-      chatbox.appendChild(botMessage);
+  if (step === "start") {
+    if (input === '1' || input.toLowerCase().includes("line")) {
+      step = "line_name";
+      botMsg.innerText = "🔴 Sorry about the line break.\nPlease enter your Name:";
+    } else if (input === '2' || input.toLowerCase().includes("recharge")) {
+      botMsg.innerText = "🔴 Redirecting you to the Recharge Portal...";
+      chatbox.appendChild(botMsg);
+      inputBox.value = "";
       setTimeout(() => {
         window.location.href = "https://customer.ubiinternet.com/Customer/Default.aspx";
       }, 2000);
-      inputBox.value = "";
       return;
-    } else if (input === '3' || input.toLowerCase().includes('speed')) {
-      currentStep = "speedissue_name";
-      botMessage.innerText = "🔴 Sorry for the speed issue.\nPlease provide your Name:";
+    } else if (input === '3' || input.toLowerCase().includes("speed")) {
+      step = "speed_name";
+      botMsg.innerText = "🔴 Sorry for the speed issue.\nPlease enter your Name:";
     } else {
-      botMessage.innerText = "❌ Sorry, I didn't understand.\nPlease type:\n1 - Line break\n2 - Recharge Renewal\n3 - Speed issue.";
+      botMsg.innerText = "❌ Invalid option.\nType 1 - Line break\n2 - Recharge\n3 - Speed issue.";
     }
   }
-  else if (currentStep === "linebreak_name" || currentStep === "speedissue_name") {
-    tempData.name = input;
-    currentStep = currentStep.replace("name", "mobile");
-    botMessage.innerText = "📱 Please provide your Mobile Number:";
+
+  else if (step === "line_name" || step === "speed_name") {
+    userData.name = input;
+    step = step.replace("name", "mobile");
+    botMsg.innerText = "📱 Please enter your Mobile Number:";
   }
-  else if (currentStep.ends
+
+  else if (step.endsWith("_mobile")) {
+    userData.mobile = input;
+    step = step.replace("mobile", "location");
+    botMsg.innerText = "📍 Please enter your Location:";
+  }
+
+  else if (step.endsWith("_location")) {
+    userData.location = input;
+    const issue = step.startsWith("line") ? "Line Break" : "Speed Issue";
+    botMsg.innerText = `✅ Thank you for the details:\n
+Name: ${userData.name}\n
+Mobile: ${userData.mobile}\n
+Location: ${userData.location}\n\n
+🔵 Our technical team is working on your ${issue}.`;
+
+    // Reset
+    step = "start";
+    userData = {};
+  }
+
+  chatbox.appendChild(botMsg);
+  inputBox.value = "";
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
